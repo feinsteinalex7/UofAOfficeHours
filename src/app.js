@@ -34,15 +34,50 @@ class WebServer {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 3000;
+        this.backEnd = new BackEndMain();
     }
 
     init() {
         this.app.use(express.static(path.join(__dirname, '../public')));
 
+        let search_results = [];
         this.app.get('/search', (req, res) => {
             req.query
-            res.send({
-                "results": []
+
+            this.mongo.db.collection('office_hours').find({
+                "professor": req.query
+            }).then((res) => {
+                console.log("found via professor");
+                search_results.push(res);
+
+                this.mongo.db.collection('office_hours').find({
+                    "class": req.query
+                }).then((res) => {
+                    console.log("found via class");
+                    search_results.push(res);
+                    res.send({
+                        "results": res
+                    });
+                }).catch((error) => {
+                    console.log("couldn't find any more results based on class");
+                    res.send({
+                        "results": res
+                    });
+                });
+
+            }).catch((error) => {
+
+                this.mongo.db.collection('office_hours').find({
+                    "class": req.query
+                }).then((res) => {
+                    console.log("found via class");
+                    search_results.push(res);
+                    res.send({
+                        "results": res
+                    });
+                }).catch((error) => {
+                    console.log("couldn't find any results");
+                });
             });
         });
 
@@ -209,4 +244,5 @@ class DatabaseConnection {
     }
 }
 
-let backend = new BackEndMain();
+let backend = new WebServer();
+backend.init();
