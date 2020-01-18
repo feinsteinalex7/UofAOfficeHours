@@ -2,6 +2,11 @@ const mongodb = require('mongodb');
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
 
+const path = require('path');
+const express = require('express');
+
+
+
 class BackEndMain {
     constructor() {
         this.databaseConnection = new DatabaseConnection();
@@ -17,6 +22,25 @@ class BackEndMain {
                     console.log(result);
                 })
             });
+        });
+    }
+}
+
+class WebServer {
+    constructor() {
+        this.app = express();
+        this.port = process.env.PORT || 3000;
+    }
+
+    init() {
+        this.app.use(express.static(path.join(__dirname, '../public')));
+
+        this.app.get('', (req, res) => {
+            res.send("test");
+        });
+
+        this.app.listen(this.port, () => {
+            console.log("Server is up on port " + port);
         });
     }
 }

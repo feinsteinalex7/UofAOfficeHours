@@ -73,7 +73,7 @@ div {
     left: 0;
 }
 
-.mainWrapper {
+#mainWrapper {
     width: 100%;
     height: calc(100vh - calc(var(--header-footer-height) * 2));
     position: absolute;
@@ -206,7 +206,7 @@ div {
     background-color: #ffffff;
 }
 
-.searchResultsWrapper {
+#searchResultsWrapper {
     height: calc(100% - 20px - (var(--search-search-height) * 3) + calc(var(--search-search-height) / 2));
     width: 100%;
     bottom: 0;
