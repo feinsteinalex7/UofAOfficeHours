@@ -39,8 +39,15 @@ class WebServer {
     init() {
         this.app.use(express.static(path.join(__dirname, '../public')));
 
-        this.app.get('', (req, res) => {
-            res.send("test");
+        this.app.get('/search', (req, res) => {
+            req.query
+            res.send({
+                "results": []
+            });
+        });
+
+        this.app.get('/entry', (req, res) => {
+            req.query
         });
 
         this.app.listen(this.port, () => {
