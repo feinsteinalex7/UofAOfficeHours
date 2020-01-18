@@ -12,8 +12,11 @@ class BackEndMain {
                     console.log(result2);
                 });
             });
-            this.databaseConnection.insertNewClass("lol");
-            console.log(this.databaseConnection.getProfessor("test"));
+            this.databaseConnection.insertNewClass("test", "lol").then((result) => {
+                this.databaseConnection.getProfessor("test").then((result) => {
+                    console.log(result);
+                })
+            });
         });
     }
 }
@@ -71,7 +74,8 @@ class DatabaseConnection {
         return new Promise((resolve, reject) => {
             this.mongo.db.collection('office_hours').insertOne({
                 "professor": professor,
-                "classes" : {}
+                "classes" : [],
+                "hours": []
             }).then((result) => {
                 resolve();
                 console.log("Success!");
@@ -84,18 +88,34 @@ class DatabaseConnection {
 
     insertNewClass(professor, class_name) {
         // Get professor's document
-        let professor_document = this.getProfessor(professor);
-        professor_document
+        let professor_document = null;
+        this.getProfessor(professor).then((result) => {
+            professor_document = result;
+            var classList = professor_document.classes;
+            console.log(classList);
+            console.log(professor_document);
+            classList.push(class_name);
+            console.log(classList);
 
-        
-        this.mongo.db.collection('office_hours').insertOne({
-            "professor": professor,
-            "classes" : {}
-         }).then((result) => {
-            console.log("Success!");
-         }).catch((error) => {
-            console.log("Error: " + error);
-         });
+            let updatePromise = new Promise((resolve, reject) => {
+                this.mongo.db.collection("office_hours").updateOne({
+                    _id: professor_document._id
+                }, {
+                    $set:
+                    {
+                        classes: this.classList
+                    }
+                }).then((result) => {resolve()});
+            });
+
+            updatePromise.then((result) => {
+                console.log("Successfully inserted class");
+                resolve();
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+        });
     }
 
     insertNewOfficeHour(professor, class_name, startTime, endTime) {
