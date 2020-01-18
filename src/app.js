@@ -83,10 +83,16 @@ class WebServer {
 
         this.app.get('/entry', (req, res) => {
             req.query
+
+            this.backEnd.databaseConnection.insertNewProfessor(req.query).then((result) =>{
+                this.backEnd.databaseConnection.insertNewClass(req.query).then((result) => {
+                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query);
+                }).catch((error) => {console.log(error)});
+            }).catch((error) => {console.log(error)});
         });
 
         this.app.listen(this.port, () => {
-            console.log("Server is up on port " + port);
+            console.log("Server is up on port " + this.port);
         });
     }
 }
@@ -96,7 +102,7 @@ class DatabaseConnection {
     constructor() {
         this.mongo = {
             db: null,
-            connectionURL: 'mongodb://127.0.0.1:27017',
+            connectionURL: 'mongodb+srv://hackaztest:hackaztest@uofa-hours-0pir6.mongodb.net/test',
             databaseName: 'UofA-Hours',
         }
     }
