@@ -2,7 +2,6 @@
     --header-footer-height: 50px;
     --header-footer-height-total: 100px;
     
-    --main-title-font-size: 50px;
     --main-font: "Courier New";
     --main-search-width: 50%;
     --main-search-height: 35px;
@@ -25,10 +24,24 @@ span {
 
 input {
     font-family: var(--main-font);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    outline-width: 0;
+    border: none;
 }
 
 div {
     font-family: var(--main-font);
+}
+
+.button {
+    border: 1px solid black;
+    height: calc(var(--main-search-height) / 2);
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 /* Header, Footer, Wrapper */
@@ -82,7 +95,7 @@ div {
     position: relative;
     width: 100%;
     text-align: center;
-    font-size: var(--main-title-font-size);
+    font-size: 50px;
     font-weight: bold;
     display: block;
 }
@@ -101,11 +114,6 @@ div {
     position: absolute;
     height: 50%;
     width: 100%;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    outline-width: 0;
-    border: none;
     z-index: 2;
 
     font-size: 15px;
@@ -152,14 +160,8 @@ div {
 }
 
 #mainViewCalendar {
-    border: 1px solid black;
-    height: calc(var(--main-search-height) / 2);
     background-color:#eeeeee;
-    border-radius: 5px;
     width: 150px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: bold;
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -251,4 +253,49 @@ div {
     padding-left: 10px;
     line-height: 30px;
     display: inline-block;
+}
+
+#searchBack {
+    color: #ffffff;
+    background-color: #0c234b;
+    position: absolute;
+    bottom: 25%;
+    transform: translate(0, 50%);
+    padding-left: 10px;
+    padding-right: 10px;
+    z-index: 3;
+}
+
+/* Entry Page CSS */
+
+.entryContentWrapper {
+    position: relative;
+    height: 100%;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #cccccc;
+}
+
+#entryTitle {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    display: block;
+    line-height: 60px;
+}
+
+.entryFormBox {
+    position: relative;
+    height: 30px;
+    width: 300px;
+    font-size: 15px;
+    padding: 10px;
+    background-color: #eeeeee;
+    margin-top: 30px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    display: block;
 }
