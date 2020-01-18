@@ -15,14 +15,18 @@ class BackEndMain {
             this.databaseConnection.insertNewProfessor("test").then((result) => {
                 this.databaseConnection.getProfessor("test").then((result2) => {
                     console.log(result2);
-                });
-            });
+                }).catch((error) => {console.log(error)});
+            }).catch((error) => {console.log(error)});
             this.databaseConnection.insertNewClass("test", "lol").then((result) => {
-                this.databaseConnection.getProfessor("test").then((result) => {
-                    console.log(result);
-                })
+                this.databaseConnection.insertNewOfficeHour("test", "lol", "1AM", "9PM").then((result) => {
+                    this.databaseConnection.getProfessor("test").then((result2) => {
+                        console.log(result2);
+                    }).catch((error) => {console.log(error)});
+                }).catch((error) => {console.log(error)});
             });
-        });
+
+            
+        }).catch((error) => {console.log(error)});
     }
 }
 
@@ -96,54 +100,105 @@ class DatabaseConnection {
     // Insert methods
     insertNewProfessor(professor) {
         return new Promise((resolve, reject) => {
-            this.mongo.db.collection('office_hours').insertOne({
-                "professor": professor,
-                "classes" : [],
-                "hours": []
-            }).then((result) => {
-                resolve();
-                console.log("Success!");
+            this.getProfessor(professor).then((result) => {
+                if (result === "error" || result == null) {
+                    this.mongo.db.collection('office_hours').insertOne({
+                        "professor": professor,
+                        "classes" : [],
+                        "hours": []
+                    }).then((result) => {
+                        resolve();
+                        console.log("Success!");
+                    }).catch((error) => {
+                        reject(error);
+                        console.log("Error: " + error);
+                    });
+                }
+                else
+                {
+                    console.log("professor already has entry");
+                    resolve();
+                }
             }).catch((error) => {
-                reject(error);
-                console.log("Error: " + error);
+                console.log(error);
+                reject();
             });
         });
     }
 
     insertNewClass(professor, class_name) {
-        // Get professor's document
-        let professor_document = null;
-        this.getProfessor(professor).then((result) => {
-            professor_document = result;
-            var classList = professor_document.classes;
-            console.log(classList);
-            console.log(professor_document);
-            classList.push(class_name);
-            console.log(classList);
+        return new Promise((resolve, reject) => {
+            // Get professor's document
+            let professor_document = null;
+            this.getProfessor(professor).then((result) => {
+                if (!result.classes.includes(class_name))
+                {
+                    professor_document = result;
+                    var classList = professor_document.classes;
+                    console.log(classList);
+                    classList.push(class_name);
+                    console.log(classList);
 
-            let updatePromise = new Promise((resolve, reject) => {
-                this.mongo.db.collection("office_hours").updateOne({
-                    _id: professor_document._id
-                }, {
-                    $set:
-                    {
-                        classes: this.classList
-                    }
-                }).then((result) => {resolve()});
-            });
-
-            updatePromise.then((result) => {
-                console.log("Successfully inserted class");
-                resolve();
+                    this.mongo.db.collection("office_hours").updateOne({
+                        _id: professor_document._id
+                    }, {
+                        $set:
+                        {
+                            classes: classList
+                        }
+                    }).then((result) => {
+                        console.log("Successfully inserted class");
+                        console.log(professor_document);
+                        console.log("----------");
+                        this.getProfessor("test").then((result) => {
+                            console.log(result);
+                            console.log("//////////");
+                        });
+                        resolve(professor_document);
+                    }).catch((error) => {
+                        console.log(error);
+                        reject(error);
+                    });
+                }
+                else {
+                    console.log("class already exists for professor");
+                    resolve(result);
+                }
             }).catch((error) => {
                 console.log(error);
-                reject(error);
             });
         });
     }
 
     insertNewOfficeHour(professor, class_name, startTime, endTime) {
-
+        return new Promise((resolve, reject) => {
+            // Get professor's document
+            let professor_document = null;
+            this.getProfessor(professor).then((result) => {
+                console.log("res", result);
+                professor_document = result;
+                var hours = professor_document.hours;
+                //var classList = professor_document.classes;
+                hours[professor_document.classes.indexOf(class_name) * 2] = startTime;
+                hours[professor_document.classes.indexOf(class_name) * 2 + 1] = endTime;
+                this.mongo.db.collection("office_hours").updateOne({
+                    _id: professor_document._id
+                }, {
+                    $set:
+                    {
+                        hours: hours
+                    }
+                }).then((result) => {
+                    console.log("Successfully inserted hours");
+                    console.log(professor_document);
+                    console.log("++++++++++");
+                    resolve(professor_document);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            });
+        });
     }
 }
 
