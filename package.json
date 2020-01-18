@@ -1,0 +1,19 @@
+{
+  "name": "hackazproject",
+  "version": "1.0.0",
+  "description": "Office hours search engine for the UofA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feinsteinalex7/UofAOfficeHours.git"
+  },
+  "author": "Alex Feinstein and Aaron Frank",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/feinsteinalex7/UofAOfficeHours/issues"
+  },
+  "homepage": "https://github.com/feinsteinalex7/UofAOfficeHours#readme"
+}
