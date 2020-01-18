@@ -45,13 +45,13 @@ class WebServer {
             req.query
 
             this.mongo.db.collection('office_hours').find({
-                "professor": req.query
+                professor: req.query
             }).then((res) => {
                 console.log("found via professor");
                 search_results.push(res);
 
                 this.mongo.db.collection('office_hours').find({
-                    "class": req.query
+                    classes: req.query
                 }).then((res) => {
                     console.log("found via class");
                     search_results.push(res);
@@ -68,7 +68,7 @@ class WebServer {
             }).catch((error) => {
 
                 this.mongo.db.collection('office_hours').find({
-                    "class": req.query
+                    classes: req.query
                 }).then((res) => {
                     console.log("found via class");
                     search_results.push(res);
