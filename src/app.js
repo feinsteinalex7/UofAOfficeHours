@@ -223,9 +223,15 @@ class DatabaseConnection {
                 //console.log("res", result);
                 professor_document = result;
                 var hours = professor_document.hours;
+                if (typeof hours === "undefined") {
+                    hours = [];
+                }
 
                 if (typeof time != "string") {
-                    hours = hours.concat(time);
+                    if (typeof hours[professor_document.classes.indexOf(class_name)] == "undefined") {
+                        hours[professor_document.classes.indexOf(class_name)] = [];
+                    }
+                    hours = hours[professor_document.classes.indexOf(class_name)].concat(time);
                     console.log("auisdbfliuasgeufiaw", hours, "siugfialsf ", time);
                     this.mongo.db.collection("office_hours").updateOne({
                         _id: professor_document._id
