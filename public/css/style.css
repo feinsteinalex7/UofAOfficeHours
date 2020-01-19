@@ -303,6 +303,15 @@ div {
     line-height: 60px;
 }
 
+#entrySuccessMessage {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: none;
+}
+
 .entryFormBox {
     position: relative;
     height: 30px;
@@ -316,7 +325,7 @@ div {
     display: block;
 }
 
-.entryHoursWrapper {
+#entryHoursWrapper {
     width: 300px;
     position: relative;
     margin-top: 60px;
@@ -365,13 +374,14 @@ div {
     cursor: pointer;
 }
 
-.plusButtonWrapper {
+#plusButtonWrapper {
     height: 20px;
     position: relative;
     width: 25px;
     top: -20px;
     background-color: #eeeeee;
     left: calc(100% - 25px);
+    cursor: pointer;
 }
 
 .entrySubmissionWrapper {
@@ -398,4 +408,14 @@ div {
     right: 0;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+#entryError {
+    color: #ab0520;
+    font-size: 15px;
+    line-height: 15px;
+    width: 100%;
+    text-align: center;
+    display: none;
+    margin-bottom: calc(var(--main-search-height) / 2); 
 }

@@ -2,6 +2,8 @@ class UAHoursView {
     constructor() {
         this.mainWrapper = document.getElementById("mainWrapper");
         this.INIT_ENTRY_HOURS_BOXES = 3;
+        this.OFFICE_HOUR_BOX_PLACEHOLDER = "Monday 11:00AM - 2:00PM"
+        this.mainPage();
     }
 
     mainPage() {
@@ -113,14 +115,16 @@ class UAHoursView {
         entryContentWrapper.className = "entryContentWrapper";
         entryContentWrapper.innerHTML = `
             <span id="entryTitle">Submit Your Office Hours</span>
-            <input type="text" class="entryFormBox" placeholder="Professor (Dr. Wilbur Wildcat)">
-            <input type="text" class="entryFormBox" placeholder="Class (CSC 352)">
-            <div class="entryHoursWrapper">
+            <input id="profName" type="text" class="entryFormBox" placeholder="Professor (Dr. Wilbur Wildcat)">
+            <input id="className" type="text" class="entryFormBox" placeholder="Class (CSC 352)">
+            <div id="entryHoursWrapper">
                 <div id="entryHoursInputWrapper"></div>
-                <div class="plusButtonWrapper">
+                <div id="plusButtonWrapper">
                     <span class="plusIcon">+</span>
                 </div>
             </div>
+            <span id="entryError"></span>
+            <span id="entrySuccessMessage">Your office hours have been recorded!</span>
             <div class="entrySubmissionWrapper">
                 <div class="button" id="entryBack">Back</div>
                 <div class="button" id="entrySubmit">Submit</div>
@@ -129,10 +133,49 @@ class UAHoursView {
         
         let entryHoursInputWrapper = document.getElementById("entryHoursInputWrapper");
         for (var i = 0; i < this.INIT_ENTRY_HOURS_BOXES; i++) {
-            let hoursBox = this._createEntryHoursBox();
+            let hoursBox = this._createEntryHoursBox(this.OFFICE_HOUR_BOX_PLACEHOLDER);
             entryHoursInputWrapper.appendChild(hoursBox[0]);
             entryHoursInputWrapper.appendChild(hoursBox[1]);
         }
+
+        // Add event listeners
+
+        document.getElementById("plusButtonWrapper").addEventListener("click", () => {
+            let hoursBox = this._createEntryHoursBox(this.OFFICE_HOUR_BOX_PLACEHOLDER);
+            entryHoursInputWrapper.appendChild(hoursBox[0]);
+            entryHoursInputWrapper.appendChild(hoursBox[1]);
+        });
+
+        document.getElementById("entryBack").addEventListener("click", () => {
+            this.mainPage();
+        });
+
+        document.getElementById("entrySubmit").addEventListener("click", () => {
+            let profName = encodeURIComponent(document.getElementById("profName").value);
+            let className = encodeURIComponent(document.getElementById("className").value);
+            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className" + encodeURIComponent(className);
+            
+            let entryHoursBoxes = document.getElementsByClassName("entryHoursBox");
+
+            for (let i = 0; i < entryHoursBoxes.length; i++) {
+                queryString += "&officeHour" + i + "=" + encodeURIComponent(entryHoursBoxes[i].value);
+            }
+
+            fetch(queryString).then((data) => {
+                var entryFormBoxes = document.getElementsByClassName("entryFormBox");
+                for (var i = 0; i < entryFormBoxes.length; i++) {
+                    entryFormBoxes[i].style.display = "none";
+                }
+                document.getElementById("entryHoursWrapper").style.display = "none";
+                document.getElementById("entrySuccessMessage").style.display = "block";
+                document.getElementById("entrySubmit").style.display = "none";
+                document.getElementById("entryBack").style.left = "50%";
+                document.getElementById("entryBack").style.transform = "translate(-50%, 0)";
+            }).catch((error) => {
+                document.getElementById("entryError").style.display = "block";
+                document.getElementById("entryError").textContent = error;
+            });
+        });
     }
 
     _clearMainWrapper() {
@@ -148,6 +191,10 @@ class UAHoursView {
         let minusIcon = document.createElement("span");
         minusIcon.className = "minusIcon";
         minusIcon.textContent = "-";
+        minusIcon.addEventListener("click", function() {
+            this.parentElement.removeChild(this.previousSibling);
+            this.parentElement.removeChild(this);
+        });
 
         return [entryHoursBox, minusIcon];
     }
@@ -181,18 +228,6 @@ class UAHoursController {
         this.view = new UAHoursView();
         this.model = new UAHoursModel();
     }
-
-    mainScreen() {
-        this.view.mainPage();
-    }
-
-    searchScreen() {
-        this.view.searchPage();
-    }
-
-    entryScreen() {
-        this.view.entryPage();
-    }
 }
 
 class UAHoursModel {
@@ -203,7 +238,6 @@ class UAHoursModel {
 
 let main = function() {
     let controller = new UAHoursController();
-    controller.mainScreen();
 }
 
 main();
