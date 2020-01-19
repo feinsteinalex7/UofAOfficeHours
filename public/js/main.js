@@ -1,10 +1,9 @@
 class UAHoursView {
-    constructor() {
+    constructor(model) {
+        this.model = model;
         this.mainWrapper = document.getElementById("mainWrapper");
         this.INIT_ENTRY_HOURS_BOXES = 3;
         this.OFFICE_HOUR_BOX_PLACEHOLDER = "Monday 11:00AM - 2:00PM"
-        this.BLUE_TAB_COLOR = "#0c234b";
-        this.RED_TAB_COLOR = "#ab0520";
         this.mainPage();
     }
 
@@ -25,10 +24,6 @@ class UAHoursView {
         let mainClassTabWrapper = document.createElement("div");
         mainClassTabWrapper.id = "mainClassTabWrapper";
         mainSearchWrapper.appendChild(mainClassTabWrapper);
-
-        // Add tabs here
-        mainClassTabWrapper.appendChild(this._createSearchTab("CSC 335", this.RED_TAB_COLOR));
-        mainClassTabWrapper.appendChild(this._createSearchTab("CSC 35223", this.RED_TAB_COLOR));
 
         // Create calendar button
         let mainViewCalendar = document.createElement("div");
@@ -56,6 +51,7 @@ class UAHoursView {
         mainContentWrapper.appendChild(mainButtonWrapper);
     
         this.mainWrapper.appendChild(mainContentWrapper);
+        this._loadSearchTabs();
 
         // Add event listeners
         mainEntryButton.addEventListener("click", () => {
@@ -66,6 +62,7 @@ class UAHoursView {
             fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((response) => {
                 response.json().then((data) => {
                     console.log(data);
+                    this.searchPage(data);
                 });
             });
         }
@@ -101,6 +98,10 @@ class UAHoursView {
          searchBack.id = "searchBack";
          searchBack.className = "button";
          searchBack.textContent = "Back";
+         searchBack.addEventListener("click", () => {
+            this.model.clearLoadedClasses();
+            this.mainPage();
+         });
          searchWrapper.appendChild(searchBack);
          searchContentWrapper.appendChild(searchWrapper);
 
@@ -110,11 +111,17 @@ class UAHoursView {
 
          // Append search results here
          
-
+         for (var i = 0; i < data.length; i++) {
+             for (var j = 0; j < data[i].classes.length; j++) {
+                searchResultsWrapper.appendChild(this._createSearchResult(data[i].professor, data[i].classes[j], data[i].locName[j], data[i].hours[j]));
+             }
+         }
+         
          searchContentWrapper.appendChild(searchResultsWrapper);
 
         // Add searchContentWrapper to mainWrapper
         this.mainWrapper.appendChild(searchContentWrapper);
+        this._loadSearchTabs();
     }
 
     entryPage() {
@@ -126,6 +133,7 @@ class UAHoursView {
             <span id="entryTitle">Submit Your Office Hours</span>
             <input id="profName" type="text" class="entryFormBox" placeholder="Professor (Dr. Wilbur Wildcat)">
             <input id="className" type="text" class="entryFormBox" placeholder="Class (CSC 352)">
+            <input id="locName" type="text" class="entryFormBox" placeholder="Location (GS 902)">
             <div id="entryHoursWrapper">
                 <div id="entryHoursInputWrapper"></div>
                 <div id="plusButtonWrapper">
@@ -162,7 +170,8 @@ class UAHoursView {
         document.getElementById("entrySubmit").addEventListener("click", () => {
             let profName = encodeURIComponent(document.getElementById("profName").value);
             let className = encodeURIComponent(document.getElementById("className").value);
-            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className" + encodeURIComponent(className);
+            let locName = encodeURIComponent(document.getElementById("locName").value);
+            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className=" + encodeURIComponent(className) + "&locName" + encodeURIComponent(locName);
             
             let entryHoursBoxes = document.getElementsByClassName("entryHoursBox");
 
@@ -187,16 +196,40 @@ class UAHoursView {
         });
     }
 
+    _loadExistingSearchTabs() {
+
+    }
+
     _clearMainWrapper() {
         this.mainWrapper.innerHTML = "";
     }
 
-    _createSearchTab(title, color) {
+    _loadSearchTabs() {
+        let mainClassTabWrapper = document.getElementById("mainClassTabWrapper");
+        mainClassTabWrapper.innerHTML = "";
+        for (let id in this.model.savedClassesTabs) {
+            mainClassTabWrapper.appendChild(this.model.savedClassesTabs[id]);
+        }
+    }
+
+    _createSearchTab(title, id) {
         let mainClassTab = document.createElement("div");
         mainClassTab.className = "mainClassTab";
-        mainClassTab.style.backgroundColor = color;
+
+        let ID = id;
+        mainClassTab.addEventListener("click", () => {
+            this.model.removeSavedClass(ID);
+            mainClassTab.parentElement.removeChild(mainClassTab);
+            if (this.model.getHiddenId(ID)) {
+                this.model.getHiddenId(ID).click();
+            }
+        });
+
+        
         mainClassTab.innerHTML = '<span class="removeText">REMOVE</span><span class="titleText">' + title + '</span>';
-        return mainClassTab;
+        
+        this.model.saveTab(id, mainClassTab);
+        this._loadSearchTabs();
     }
 
     _createEntryHoursBox(placeholder) {
@@ -217,9 +250,22 @@ class UAHoursView {
     }
 
     _createSearchResult(prof, className, loc, hours) {
+        // The ID is the professor + className
+        let id = prof + className;
+        this.model.loadClass(id, [prof, className, loc, hours]);
+
         // Create the searchResultWrapper
         let searchResultWrapper = document.createElement("div");
         searchResultWrapper.className = "searchResultWrapper";
+
+        let itemID = document.createElement("input");
+        itemID.type = "hidden";
+        itemID.value = id;
+        itemID.className = "itemID";
+        itemID.addEventListener("click", (e) => {
+            e.target.parentElement.className = "searchResultWrapper";         
+        });
+        this.model.saveHiddenId(id, itemID);
 
         let generalInfo = document.createElement("div");
         generalInfo.className = "searchResultGeneralInfoWrapper";
@@ -233,23 +279,93 @@ class UAHoursView {
             }
             officeHours.innerHTML += hours[i];
         }
+        
+        // Add event listener
+        searchResultWrapper.addEventListener("click", (e) => {
+            
+            // Check for if hidden id was clicked
+            if (e.target.className == "itemID") {
+                return;
+            }
+            
+            let targetID = searchResultWrapper.getElementsByClassName("itemID")[0].value;
+            let mainClassTabWrapper = document.getElementById("mainClassTabWrapper");
+            if (this.model.isClassSaved(targetID)) {
+                searchResultWrapper.className = "searchResultWrapper";
+                
+                // Remove tab.
+                mainClassTabWrapper.removeChild(this.model.getSavedTab(targetID));
+                this.model.removeSavedClass(targetID);
+            } else {
+                searchResultWrapper.className = "searchResultWrapper searchResultWrapperSelected";
+                this.model.saveClass(targetID);
+                this._createSearchTab(this.model.getSavedClass(targetID)[1], targetID);
+            }
+        });
 
         searchResultWrapper.appendChild(officeHours);
         searchResultWrapper.appendChild(generalInfo);
+        searchResultWrapper.appendChild(itemID);
         return searchResultWrapper;
     }
 }
 
 class UAHoursController {
     constructor() {
-        this.view = new UAHoursView();
         this.model = new UAHoursModel();
+        this.view = new UAHoursView(this.model);
     }
 }
 
 class UAHoursModel {
     constructor() {
-        
+        this.savedClasses = {};
+        this.savedClassesTabs = {};
+
+        this.loadedClasses = {};
+        this.loadedHiddenIds = {};
+    }
+
+    saveHiddenId(id, elem) {
+        this.loadedHiddenIds[id] = elem;
+    }
+
+    getHiddenId(id) {
+        return this.loadedHiddenIds[id];
+    }
+
+    loadClass(id, classInfo) {
+        this.loadedClasses[id] = classInfo;
+    }
+
+    clearLoadedClasses() {
+        this.loadedClasses = {};
+        this.loadedHiddenIds = {};
+    }
+
+    saveTab(id, elem) {
+        this.savedClassesTabs[id] = elem;
+    }
+
+    getSavedTab(id) {
+        return this.savedClassesTabs[id];
+    }
+
+    isClassSaved(id) {
+        return this.savedClasses[id] != undefined;
+    }
+
+    saveClass(id) {
+        this.savedClasses[id] = this.loadedClasses[id];
+    }
+
+    getSavedClass(id) {
+        return this.savedClasses[id];
+    }
+
+    removeSavedClass(id) {
+        delete this.savedClasses[id];
+        delete this.savedClassesTabs[id];
     }
 }
 
