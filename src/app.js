@@ -44,13 +44,25 @@ class WebServer {
             console.log(search_results);
 
             let searchArr = req.query.term.toLowerCase().split("%20");
+            let searchArr2 = req.query.term.toLowerCase().split(" ");
             let searchObjArr = [];
 
             for (var i = 0; i < searchArr.length; i++) {
+                if (searchArr[i].length == 0) {
+                    continue;
+                }
                 searchObjArr.push({profS: searchArr[i]});
             }
+
+            for (var i = 0; i < searchArr2.length; i++) {
+                if (searchArr2[i].length == 0) {
+                    continue;
+                }
+                searchObjArr.push({profS: searchArr2[i]});
+            }
+
+
             searchObjArr.push({classes: req.query.term});
-            searchObjArr.push({profS: {$regex: req.query.term.toLowerCase()}});
 
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: searchObjArr
@@ -65,10 +77,10 @@ class WebServer {
                     for(let i = 0; i < result.length; i++) {
                         relevant_obj.push({
                             _id: result[i]._id,
-                            professor: decodeURI(result[i].professor),
-                            classes: decodeURI([req.query.term]),
+                            professor: decodeURIComponent(result[i].professor),
+                            classes: decodeURIComponent([req.query.term]),
                             hours: result[i].hours,
-                            loc: decodeURI(result[i].loc)
+                            loc: decodeURIComponent(result[i].loc)
                         });
                     }
                     console.log("rev", relevant_obj);
@@ -78,11 +90,11 @@ class WebServer {
                 {
                     let r = result
                     for (let i = 0; i < result.length; i++) {
-                        r[i].professor = decodeURI(r[i].professor);
-                        r[i].loc = decodeURI(r[i].loc);
+                        r[i].professor = decodeURIComponent(r[i].professor);
+                        r[i].loc = decodeURIComponent(r[i].loc);
                         
                         for (let j = 0; j < r[i].classes.length; j++) {
-                            r[i].classes[j] = decodeURI(r[i].classes[j]);
+                            r[i].classes[j] = decodeURIComponent(r[i].classes[j]);
                         }
                     }
                     res.send(result);
@@ -105,7 +117,7 @@ class WebServer {
                         if (typeof s === "undefined") {
                             break;
                         }
-                        office_hours.push(decodeURI(s));
+                        office_hours.push(decodeURIComponent(s));
                     }
                     this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, req.query.locName).then((result) => {
                         res.send();
