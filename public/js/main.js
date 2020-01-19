@@ -30,6 +30,10 @@ class UAHoursView {
         let title = document.createElement("span");
         title.id = "mainTitle";
         title.textContent = "UofA Hours";
+        
+        let subTitle = document.createElement("span");
+        subTitle.id = "subTitle";
+        subTitle.textContent = "The office hour search engine for the UofA";
 
         // Create search wrapper
         let mainSearchWrapper = document.createElement("div");
@@ -45,7 +49,11 @@ class UAHoursView {
         let mainViewCalendar = document.createElement("div");
         mainViewCalendar.id = "mainViewCalendar";
         mainViewCalendar.className = "button";
-        mainViewCalendar.textContent = "View Your Saved Hours";
+        mainViewCalendar.textContent = "View Highlighted Hours";
+
+        if (Object.keys(this.model.savedClasses).length) {
+            mainViewCalendar.style.display = "inline-block";
+        }
 
         // Create entry button
         let mainEntryButton = document.createElement("div");
@@ -63,6 +71,7 @@ class UAHoursView {
         let mainContentWrapper = document.createElement("div");
         mainContentWrapper.className = "mainContentWrapper";
         mainContentWrapper.appendChild(title);
+        mainContentWrapper.appendChild(subTitle);
         mainContentWrapper.appendChild(mainSearchWrapper);
         mainContentWrapper.appendChild(mainButtonWrapper);
     
@@ -129,7 +138,7 @@ class UAHoursView {
          // Append search results here
          
          if (useCalendarData) {
-            noResultsFound.textContent = "No Office Hours Saved!";
+            noResultsFound.textContent = "No Highlighted Office Hours!";
             let itemsAdded = false;
             for (var i in data) {
                 itemsAdded = true;
