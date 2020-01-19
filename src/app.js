@@ -12,20 +12,15 @@ class BackEndMain {
         this.databaseConnection = new DatabaseConnection();
         console.log("db made");
         this.databaseConnection.init().then((result) => {
-            this.databaseConnection.insertNewProfessor("test").then((result) => {
-                this.databaseConnection.getProfessor("test").then((result2) => {
-                    console.log(result2);
-                }).catch((error) => {console.log(error)});
-            }).catch((error) => {console.log(error)});
-            this.databaseConnection.insertNewClass("test", "idk").then((result) => {
-                this.databaseConnection.insertNewOfficeHour("test", "idk", "2AM-10PM").then((result) => {
-                    this.databaseConnection.getProfessor("test").then((result2) => {
-                        console.log(result2);
+            this.databaseConnection.insertNewProfessor("test3").then((result) => {
+                this.databaseConnection.insertNewClass("test3", "woo").then((result) => {
+                    this.databaseConnection.insertNewOfficeHour("test3", "woo", "2AM-10PM").then((result) => {
+                        this.databaseConnection.getProfessor("test3").then((result2) => {
+                            console.log(result2);
+                        }).catch((error) => {console.log(error)});
                     }).catch((error) => {console.log(error)});
-                }).catch((error) => {console.log(error)});
-            });
-
-            
+                });
+            }).catch((error) => {console.log(error)});
         }).catch((error) => {console.log(error)});
     }
 }
@@ -76,13 +71,19 @@ class WebServer {
 
             this.backEnd.databaseConnection.insertNewProfessor(req.query.profName).then((result) =>{
                 this.backEnd.databaseConnection.insertNewClass(req.query.profName, req.query.className).then((result) => {
+                    var office_hours = [];
                     for (let i = 0; i < 100; i++) {
                         let s = req.query["officeHour" + i];
-                        if (s === null) {
+                        console.log("asdfasefasefasef", req.query);
+                        if (typeof s === "undefined" || s == '') {
                             break;
                         }
-                        this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, s);
+                        office_hours.push(s);
                     }
+                    console.log("asduf  uasief  ", office_hours);
+                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours).then((result) => {
+                        res.send();
+                    });
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
         });
@@ -219,11 +220,36 @@ class DatabaseConnection {
             // Get professor's document
             let professor_document = null;
             this.getProfessor(professor).then((result) => {
-                console.log("res", result);
+                //console.log("res", result);
                 professor_document = result;
                 var hours = professor_document.hours;
 
-                if (hours[professor_document.classes.indexOf(class_name)] == null) {
+                if (typeof time != "string") {
+                    hours = hours.concat(time);
+                    console.log("auisdbfliuasgeufiaw", hours, "siugfialsf ", time);
+                    this.mongo.db.collection("office_hours").updateOne({
+                        _id: professor_document._id
+                    }, {
+                        $set:
+                        {
+                            hours: hours
+                        }
+                    }).then((result) => {
+                        console.log("Successfully inserted hours");
+                        console.log(professor_document);
+                        console.log("++++++++++");
+                        resolve(professor_document);
+                        return;
+                    }).catch((error) => {
+                        console.log(error);
+                        reject(error);
+                        return;
+                    });
+                    return;
+                }
+
+                if (typeof hours[professor_document.classes.indexOf(class_name)] === "undefined") {
+                    console.log("WWWWWWW ", hours);
                     hours[professor_document.classes.indexOf(class_name)] = [];
                 }
                 if (!hours[professor_document.classes.indexOf(class_name)].includes(time)) {

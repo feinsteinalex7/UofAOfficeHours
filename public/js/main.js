@@ -162,7 +162,7 @@ class UAHoursView {
         document.getElementById("entrySubmit").addEventListener("click", () => {
             let profName = encodeURIComponent(document.getElementById("profName").value);
             let className = encodeURIComponent(document.getElementById("className").value);
-            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className" + encodeURIComponent(className);
+            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className=" + encodeURIComponent(className);
             
             let entryHoursBoxes = document.getElementsByClassName("entryHoursBox");
 
