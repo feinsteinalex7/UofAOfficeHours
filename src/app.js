@@ -120,8 +120,8 @@ class DatabaseConnection {
     constructor() {
         this.mongo = {
             db: null,
-            connectionURL: 'mongodb+srv://hackaztest:hackaztest@uofa-hours-0pir6.mongodb.net/test',
-            databaseName: 'UofA-Hours',
+            connectionURL: process.env.MONGODB_URI || 'mongodb://<dbuser>:<dbpassword>@ds263927.mlab.com:63927/heroku_rkqtl9m2',
+            databaseName: 'heroku_rkqtl9m2',
         }
     }
 
