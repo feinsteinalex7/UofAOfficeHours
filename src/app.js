@@ -51,18 +51,19 @@ class WebServer {
                 if (searchArr[i].length == 0) {
                     continue;
                 }
-                searchObjArr.push({profS: searchArr[i]});
+                searchObjArr.push({profS: {$regex: searchArr[i]}});
             }
 
             for (var i = 0; i < searchArr2.length; i++) {
                 if (searchArr2[i].length == 0) {
                     continue;
                 }
-                searchObjArr.push({profS: searchArr2[i]});
+                searchObjArr.push({profS: {$regex: searchArr2[i]}});
             }
 
-
             searchObjArr.push({classes: req.query.term});
+
+            console.log("searchObjArr", searchObjArr);
 
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: searchObjArr
