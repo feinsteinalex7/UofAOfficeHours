@@ -102,7 +102,7 @@ class WebServer {
                         office_hours.push(decodeURI(s));
                     }
                     console.log("asduf  uasief  ", office_hours);
-                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, "test loc").then((result) => {
+                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, req.query.locName).then((result) => {
                         res.send();
                     });
                 }).catch((error) => {console.log(error)});
