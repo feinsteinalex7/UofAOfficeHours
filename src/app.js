@@ -32,50 +32,27 @@ class BackEndMain {
 
 class WebServer {
     constructor() {
+        this.backEnd = new BackEndMain();
         this.app = express();
         this.port = process.env.PORT || 3000;
-        this.backEnd = new BackEndMain();
     }
 
     init() {
         this.app.use(express.static(path.join(__dirname, '../public')));
-
-        let search_results = [];
+        var search_results = [];
         this.app.get('/search', (req, res) => {
-            this.mongo.db.collection('office_hours').find({
-                professor: req.query.term
-            }).then((res) => {
-                console.log("found via professor");
-                search_results.push(res);
+            console.log("reeee", this.backEnd);
+            console.log("search term: ", req.query.term);
+            console.log(search_results);
 
-                this.mongo.db.collection('office_hours').find({
-                    classes: req.query.term
-                }).then((res) => {
-                    console.log("found via class");
-                    search_results.push(res);
-                    res.send({
-                        "results": res
-                    });
-                }).catch((error) => {
-                    console.log("couldn't find any more results based on class");
-                    res.send({
-                        "results": res
-                    });
-                });
-
-            }).catch((error) => {
-
-                this.mongo.db.collection('office_hours').find({
-                    classes: req.query.term
-                }).then((res) => {
-                    console.log("found via class");
-                    search_results.push(res);
-                    res.send({
-                        "results": res
-                    });
-                }).catch((error) => {
-                    console.log("couldn't find any results");
-                });
+            this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
+                $or: [
+                {classes: req.query.term},
+                {professor: req.query.term}
+                ]
+            }).toArray(function(error, result) {
+                console.log("hello", result);
+                res.send(result);
             });
         });
 
@@ -248,5 +225,8 @@ class DatabaseConnection {
     }
 }
 
-let backend = new WebServer();
-backend.init();
+var backend = null;
+new Promise((resolve, reject) => {
+    backend = new WebServer();
+    resolve(backend);
+}).then((result) => {backend.init();});
