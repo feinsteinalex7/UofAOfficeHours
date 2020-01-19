@@ -28,14 +28,46 @@ class UAHoursView {
         mainViewCalendar.className = "button";
         mainViewCalendar.textContent = "View Calendar";
 
+        // Create entry button
+        let mainEntryButton = document.createElement("div");
+        mainEntryButton.id = "mainEntryButton";
+        mainEntryButton.className = "button";
+        mainEntryButton.textContent = "Enter Your Office Hours";
+
+        // Create button wrapper
+        let mainButtonWrapper = document.createElement("div");
+        mainButtonWrapper.className = "mainButtonWrapper";
+        mainButtonWrapper.appendChild(mainViewCalendar);
+        mainButtonWrapper.appendChild(mainEntryButton);
+
         // Create wrapper class for everything above.
         let mainContentWrapper = document.createElement("div");
         mainContentWrapper.className = "mainContentWrapper";
         mainContentWrapper.appendChild(title);
         mainContentWrapper.appendChild(mainSearchWrapper);
-        mainContentWrapper.appendChild(mainViewCalendar);
+        mainContentWrapper.appendChild(mainButtonWrapper);
     
         this.mainWrapper.appendChild(mainContentWrapper);
+
+        // Add event listeners
+        mainEntryButton.addEventListener("click", () => {
+            this.entryPage();
+        });
+
+        let searchFunction = () => {
+            fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((data) => {
+                console.log(data);
+                this.searchPage(data);
+            });
+        }
+
+        document.getElementById("mainSearch").addEventListener("keyup", (e) => {
+            if (e.keyCode == 13) {
+                searchFunction();
+            }
+        })
+
+        document.getElementById("mainSearchMag").addEventListener("click", searchFunction);
     }
 
     searchPage() {
@@ -171,7 +203,7 @@ class UAHoursModel {
 
 let main = function() {
     let controller = new UAHoursController();
-    controller.entryScreen();
+    controller.mainScreen();
 }
 
 main();

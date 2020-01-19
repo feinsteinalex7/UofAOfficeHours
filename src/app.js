@@ -43,13 +43,13 @@ class WebServer {
         let search_results = [];
         this.app.get('/search', (req, res) => {
             this.mongo.db.collection('office_hours').find({
-                professor: req.query
+                professor: req.query.term
             }).then((res) => {
                 console.log("found via professor");
                 search_results.push(res);
 
                 this.mongo.db.collection('office_hours').find({
-                    classes: req.query
+                    classes: req.query.term
                 }).then((res) => {
                     console.log("found via class");
                     search_results.push(res);
@@ -66,7 +66,7 @@ class WebServer {
             }).catch((error) => {
 
                 this.mongo.db.collection('office_hours').find({
-                    classes: req.query
+                    classes: req.query.term
                 }).then((res) => {
                     console.log("found via class");
                     search_results.push(res);
@@ -224,7 +224,7 @@ class DatabaseConnection {
                 console.log("res", result);
                 professor_document = result;
                 var hours = professor_document.hours;
-                //var classList = professor_document.classes;
+
                 hours[professor_document.classes.indexOf(class_name) * 2] = startTime;
                 hours[professor_document.classes.indexOf(class_name) * 2 + 1] = endTime;
                 this.mongo.db.collection("office_hours").updateOne({
