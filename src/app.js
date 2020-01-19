@@ -46,7 +46,7 @@ class WebServer {
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: [
                 {classes: req.query.term},
-                {profS: {$regex: req.query.term.toLowerCase()}}
+                {profS: eq.query.term.toLowerCase()}
                 ]
             }).toArray(function(error, result) {
                 console.log("hello", result);
