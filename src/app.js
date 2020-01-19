@@ -52,7 +52,7 @@ class WebServer {
                 console.log("hello", result);
                 let relevant_obj = [];
                 if (typeof result[0] === "undefined") {
-                    res.send();
+                    res.send([]);
                     return;
                 }
                 if (result[0].classes.includes(req.query.term)) {
