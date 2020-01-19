@@ -36,6 +36,9 @@ class WebServer {
         this.app.use(express.static(path.join(__dirname, '../public')));
         var search_results = [];
         this.app.get('/search', (req, res) => {
+            if (typeof req.query.term === "undefined" || req.query.term == "") {
+                return;
+            }
             console.log("reeee", this.backEnd);
             console.log("search term: ", req.query.term);
             console.log(search_results);
@@ -48,6 +51,10 @@ class WebServer {
             }).toArray(function(error, result) {
                 console.log("hello", result);
                 let relevant_obj = [];
+                if (typeof result[0] === "undefined") {
+                    res.send();
+                    return;
+                }
                 if (result[0].classes.includes(req.query.term)) {
                     for(let i = 0; i < result.length; i++) {
                         relevant_obj.push({
