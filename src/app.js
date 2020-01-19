@@ -43,15 +43,16 @@ class WebServer {
             console.log("search term: ", req.query.term);
             console.log(search_results);
 
-            let searchArr = req.query.term.toLowerCase().split("%20");
-            let searchArr2 = req.query.term.toLowerCase().split(" ");
+            let searchArr = req.query.term.split("%20");
+            let searchArr2 = req.query.term.split(" ");
+            
             let searchObjArr = [];
 
             for (var i = 0; i < searchArr.length; i++) {
                 if (searchArr[i].length == 0) {
                     continue;
                 }
-                searchObjArr.push({profS: {$regex: searchArr[i]}});
+                searchObjArr.push({profS: {$regex: searchArr[i].toLowerCase()}});
                 searchObjArr.push({classes: {$regex: searchArr[i]}});
             }
 
@@ -59,7 +60,7 @@ class WebServer {
                 if (searchArr2[i].length == 0) {
                     continue;
                 }
-                searchObjArr.push({profS: {$regex: searchArr2[i]}});
+                searchObjArr.push({profS: {$regex: searchArr2[i].toLowerCase()}});
                 searchObjArr.push({classes: {$regex: searchArr2[i]}});
             }
 
