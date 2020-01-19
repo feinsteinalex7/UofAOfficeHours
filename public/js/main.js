@@ -3,6 +3,8 @@ class UAHoursView {
         this.mainWrapper = document.getElementById("mainWrapper");
         this.INIT_ENTRY_HOURS_BOXES = 3;
         this.OFFICE_HOUR_BOX_PLACEHOLDER = "Monday 11:00AM - 2:00PM"
+        this.BLUE_TAB_COLOR = "#0c234b";
+        this.RED_TAB_COLOR = "#ab0520";
         this.mainPage();
     }
 
@@ -23,6 +25,10 @@ class UAHoursView {
         let mainClassTabWrapper = document.createElement("div");
         mainClassTabWrapper.id = "mainClassTabWrapper";
         mainSearchWrapper.appendChild(mainClassTabWrapper);
+
+        // Add tabs here
+        mainClassTabWrapper.appendChild(this._createSearchTab("CSC 335", this.RED_TAB_COLOR));
+        mainClassTabWrapper.appendChild(this._createSearchTab("CSC 35223", this.RED_TAB_COLOR));
 
         // Create calendar button
         let mainViewCalendar = document.createElement("div");
@@ -57,9 +63,10 @@ class UAHoursView {
         });
 
         let searchFunction = () => {
-            fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((data) => {
-                console.log(data);
-                this.searchPage(data);
+            fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((response) => {
+                response.json().then((data) => {
+                    console.log(data);
+                });
             });
         }
 
@@ -72,7 +79,7 @@ class UAHoursView {
         document.getElementById("mainSearchMag").addEventListener("click", searchFunction);
     }
 
-    searchPage() {
+    searchPage(data) {
         this._clearMainWrapper();
 
         // Create search wrapper
@@ -100,8 +107,10 @@ class UAHoursView {
          // Create the search results wrapper. 
          let searchResultsWrapper = document.createElement("div");
          searchResultsWrapper.id = "searchResultsWrapper";
-         searchResultsWrapper.appendChild(this._createSearchResult("test", "test", "test", ["1", "2", "3"]));
-         searchResultsWrapper.appendChild(this._createSearchResult("test", "test", "test", ["1", "2", "3"]));
+
+         // Append search results here
+         
+
          searchContentWrapper.appendChild(searchResultsWrapper);
 
         // Add searchContentWrapper to mainWrapper
@@ -180,6 +189,14 @@ class UAHoursView {
 
     _clearMainWrapper() {
         this.mainWrapper.innerHTML = "";
+    }
+
+    _createSearchTab(title, color) {
+        let mainClassTab = document.createElement("div");
+        mainClassTab.className = "mainClassTab";
+        mainClassTab.style.backgroundColor = color;
+        mainClassTab.innerHTML = '<span class="removeText">REMOVE</span><span class="titleText">' + title + '</span>';
+        return mainClassTab;
     }
 
     _createEntryHoursBox(placeholder) {

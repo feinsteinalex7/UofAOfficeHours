@@ -5,12 +5,12 @@
     --main-font: "Courier New";
     --main-search-width: 50%;
     --main-search-height: 35px;
-    --main-class-tab-width: 40px;
+    --main-class-tab-width: 75px;
     --main-class-tab-close-height: calc(var(--main-search-height) * 1.5);
 
     --search-search-width: 70%;
     --search-search-height: var(--main-search-height);
-    --search-result-general-info-height: 30px;
+    --search-height: var(--main-class-tab-close-height);result-general-info-height: 30px;
     --search-result-general-info-font-size: 30px;
     --search-result-general-info-max-width: 500px;
     --search-result-general-info-width: 40%;
@@ -159,6 +159,37 @@ div {
     cursor: pointer;
 }
 
+.removeText {
+    position: absolute;
+    bottom: 20px;
+    color: #ffffff;
+    white-space: nowrap;
+    text-align: center;
+    width: 70px;
+    overflow-x: hidden;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-weight: bold;
+}
+
+.titleText {
+    position: absolute;
+    bottom: 0;
+    color: #ffffff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    width: 70px;
+    overflow-x: hidden;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 15px;
+}
+
+.mainClassTab:hover {
+    height: calc(var(--main-class-tab-close-height) * 1.5);
+}
+
 .mainButtonWrapper {
     position: relative;
     left: 50%;
@@ -181,6 +212,10 @@ div {
     display: inline-block;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+#mainViewCalendar:active, #mainEntryButton:active {
+    background-color:#cccccc;
 }
 
 /* Search Page CSS */
@@ -242,6 +277,10 @@ div {
     margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.searchResultWrapperSelected {
+    
 }
 
 .searchResultGeneralInfoWrapper {
@@ -401,6 +440,10 @@ div {
     padding-right: 10px;
 }
 
+#entryBack:active {
+    background-color: #0a2149;
+}
+
 #entrySubmit {
     color: #000000;
     background-color: #ab0520;
@@ -408,6 +451,10 @@ div {
     right: 0;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+#entrySubmit:active {
+    background-color: #9f031e;
 }
 
 #entryError {
