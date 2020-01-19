@@ -5,6 +5,22 @@ class UAHoursView {
         this.INIT_ENTRY_HOURS_BOXES = 3;
         this.OFFICE_HOUR_BOX_PLACEHOLDER = "Monday 11:00AM - 2:00PM"
         this.mainPage();
+
+        this.mainSearchFunction = () => {
+            fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((response) => {
+                response.json().then((data) => {
+                    this.searchPage(data);
+                });
+            });
+        }
+
+        this.searchSearchFunction = () => {
+            fetch('/search?term=' + encodeURIComponent(document.getElementById("searchSearch").value)).then((response) => {
+                response.json().then((data) => {
+                    this.searchPage(data);
+                });
+            });
+        }
     }
 
     mainPage() {
@@ -29,7 +45,7 @@ class UAHoursView {
         let mainViewCalendar = document.createElement("div");
         mainViewCalendar.id = "mainViewCalendar";
         mainViewCalendar.className = "button";
-        mainViewCalendar.textContent = "View Calendar";
+        mainViewCalendar.textContent = "View Your Saved Hours";
 
         // Create entry button
         let mainEntryButton = document.createElement("div");
@@ -51,32 +67,27 @@ class UAHoursView {
         mainContentWrapper.appendChild(mainButtonWrapper);
     
         this.mainWrapper.appendChild(mainContentWrapper);
-        this._loadSearchTabs();
+        this.loadSearchTabs();
 
         // Add event listeners
         mainEntryButton.addEventListener("click", () => {
             this.entryPage();
         });
 
-        let searchFunction = () => {
-            fetch('/search?term=' + encodeURIComponent(document.getElementById("mainSearch").value)).then((response) => {
-                response.json().then((data) => {
-                    console.log(data);
-                    this.searchPage(data);
-                });
-            });
-        }
+        mainViewCalendar.addEventListener("click", () => {
+            this.searchPage(this.model.savedClasses, true);
+        })
 
         document.getElementById("mainSearch").addEventListener("keyup", (e) => {
             if (e.keyCode == 13) {
-                searchFunction();
+                this.mainSearchFunction();
             }
         })
 
-        document.getElementById("mainSearchMag").addEventListener("click", searchFunction);
+        document.getElementById("mainSearchMag").addEventListener("click", this.mainSearchFunction);
     }
 
-    searchPage(data) {
+    searchPage(data, useCalendarData) {
         this._clearMainWrapper();
 
         // Create search wrapper
@@ -109,19 +120,51 @@ class UAHoursView {
          let searchResultsWrapper = document.createElement("div");
          searchResultsWrapper.id = "searchResultsWrapper";
 
+         // Create no results found prompt
+         let noResultsFound = document.createElement("span");
+         noResultsFound.id = "noResultsFound";
+
+         searchResultsWrapper.appendChild(noResultsFound);
+
          // Append search results here
          
-         for (var i = 0; i < data.length; i++) {
-             for (var j = 0; j < data[i].classes.length; j++) {
-                searchResultsWrapper.appendChild(this._createSearchResult(data[i].professor, data[i].classes[j], data[i].locName[j], data[i].hours[j]));
-             }
-         }
+         if (useCalendarData) {
+            noResultsFound.textContent = "No Office Hours Saved!";
+            let itemsAdded = false;
+            for (var i in data) {
+                itemsAdded = true;
+                searchResultsWrapper.appendChild(this._createSearchResult(data[i][0], data[i][1], data[i][2], data[i][3]));
+            }
+
+            if (!itemsAdded) {
+                noResultsFound.style.display = "block";
+            }
+        } else {
+            noResultsFound.textContent = "No Results Found!";
+            for (var i = 0; i < data.length; i++) {
+                for (var j = 0; j < data[i].classes.length; j++) {
+                    searchResultsWrapper.appendChild(this._createSearchResult(data[i].professor, data[i].classes[j], data[i].loc[j], data[i].hours[j]));
+                }
+            }
+
+            if (data.length == 0) {
+                noResultsFound.style.display = "block";
+            }
+        }
          
          searchContentWrapper.appendChild(searchResultsWrapper);
 
         // Add searchContentWrapper to mainWrapper
         this.mainWrapper.appendChild(searchContentWrapper);
-        this._loadSearchTabs();
+        this.loadSearchTabs();
+
+        document.getElementById("searchSearch").addEventListener("keyup", (e) => {
+            if (e.keyCode == 13) {
+                this.searchSearchFunction();
+            }
+        })
+
+        document.getElementById("mainSearchMag").addEventListener("click", this.searchSearchFunction);
     }
 
     entryPage() {
@@ -204,7 +247,7 @@ class UAHoursView {
         this.mainWrapper.innerHTML = "";
     }
 
-    _loadSearchTabs() {
+    loadSearchTabs() {
         let mainClassTabWrapper = document.getElementById("mainClassTabWrapper");
         mainClassTabWrapper.innerHTML = "";
         for (let id in this.model.savedClassesTabs) {
@@ -212,7 +255,7 @@ class UAHoursView {
         }
     }
 
-    _createSearchTab(title, id) {
+    createSearchTab(title, id, doNotLoadTabs) {
         let mainClassTab = document.createElement("div");
         mainClassTab.className = "mainClassTab";
 
@@ -229,7 +272,10 @@ class UAHoursView {
         mainClassTab.innerHTML = '<span class="removeText">REMOVE</span><span class="titleText">' + title + '</span>';
         
         this.model.saveTab(id, mainClassTab);
-        this._loadSearchTabs();
+
+        if (!doNotLoadTabs) {
+            this.loadSearchTabs();
+        }
     }
 
     _createEntryHoursBox(placeholder) {
@@ -256,7 +302,11 @@ class UAHoursView {
 
         // Create the searchResultWrapper
         let searchResultWrapper = document.createElement("div");
-        searchResultWrapper.className = "searchResultWrapper";
+        if (this.model.isClassSaved(id)) {
+            searchResultWrapper.className = "searchResultWrapper searchResultWrapperSelected";
+        } else {
+            searchResultWrapper.className = "searchResultWrapper";
+        }
 
         let itemID = document.createElement("input");
         itemID.type = "hidden";
@@ -299,7 +349,7 @@ class UAHoursView {
             } else {
                 searchResultWrapper.className = "searchResultWrapper searchResultWrapperSelected";
                 this.model.saveClass(targetID);
-                this._createSearchTab(this.model.getSavedClass(targetID)[1], targetID);
+                this.createSearchTab(this.model.getSavedClass(targetID)[this.model.SAVED_CLASS_NAME_INDEX], targetID);
             }
         });
 
@@ -310,20 +360,22 @@ class UAHoursView {
     }
 }
 
-class UAHoursController {
-    constructor() {
-        this.model = new UAHoursModel();
-        this.view = new UAHoursView(this.model);
-    }
-}
-
 class UAHoursModel {
     constructor() {
         this.savedClasses = {};
         this.savedClassesTabs = {};
+        this.SAVED_CLASS_NAME_INDEX = 1;
 
         this.loadedClasses = {};
         this.loadedHiddenIds = {};
+
+        window.addEventListener("unload", () => {
+            this.saveStateToLocalStorage();
+        })
+    }
+
+    saveStateToLocalStorage() {
+        localStorage.setItem('savedClasses', JSON.stringify(this.savedClasses));
     }
 
     saveHiddenId(id, elem) {
@@ -370,7 +422,18 @@ class UAHoursModel {
 }
 
 let main = function() {
-    let controller = new UAHoursController();
+    let model = new UAHoursModel();
+    let view = new UAHoursView(model);
+
+    let result = localStorage.getItem('savedClasses');
+    if (result != null) {
+        model.savedClasses = JSON.parse(result);
+        
+        for (let id in model.savedClasses) {
+            view.createSearchTab(model.savedClasses[id][model.SAVED_CLASS_NAME_INDEX], id, true);
+        }
+        view.loadSearchTabs();
+    }
 }
 
 main();

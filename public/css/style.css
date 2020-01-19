@@ -316,11 +316,21 @@ div {
     color: #ffffff;
     background-color: #0c234b;
     position: absolute;
-    bottom: 25%;
+    bottom: 10px;
     transform: translate(0, 50%);
     padding-left: 10px;
     padding-right: 10px;
     z-index: 3;
+}
+
+#noResultsFound {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    display: none;
+    line-height: 60px;
 }
 
 /* Entry Page CSS */
