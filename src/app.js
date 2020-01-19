@@ -42,8 +42,6 @@ class WebServer {
 
         let search_results = [];
         this.app.get('/search', (req, res) => {
-            req.query
-
             this.mongo.db.collection('office_hours').find({
                 professor: req.query
             }).then((res) => {

@@ -1,10 +1,11 @@
 class UAHoursView {
     constructor() {
         this.mainWrapper = document.getElementById("mainWrapper");
+        this.INIT_ENTRY_HOURS_BOXES = 3;
     }
 
     mainPage() {
-        _clearMainWrapper();
+        this._clearMainWrapper();
         
         // Create title
         let title = document.createElement("span");
@@ -38,11 +39,11 @@ class UAHoursView {
     }
 
     searchPage() {
-        _clearMainWrapper();
+        this._clearMainWrapper();
 
         // Create search wrapper
         let searchWrapper = document.createElement("div");
-        searchWrapper.className = "searchWrapper";
+        searchWrapper.className = "searchSearchWrapper";
         searchWrapper.innerHTML = '<input id="searchSearch" type="text"><img src="../images/search.png" id="mainSearchMag">';
 
         // Create mainClassTabWrapper wrapper
@@ -58,16 +59,65 @@ class UAHoursView {
          let searchBack = document.createElement("div");
          searchBack.id = "searchBack";
          searchBack.className = "button";
-         searchWrapper.appendChild(searchContentWrapper);
+         searchBack.textContent = "Back";
+         searchWrapper.appendChild(searchBack);
          searchContentWrapper.appendChild(searchWrapper);
 
          // Create the search results wrapper. 
          let searchResultsWrapper = document.createElement("div");
          searchResultsWrapper.id = "searchResultsWrapper";
+         searchResultsWrapper.appendChild(this._createSearchResult("test", "test", "test", ["1", "2", "3"]));
+         searchResultsWrapper.appendChild(this._createSearchResult("test", "test", "test", ["1", "2", "3"]));
+         searchContentWrapper.appendChild(searchResultsWrapper);
+
+        // Add searchContentWrapper to mainWrapper
+        this.mainWrapper.appendChild(searchContentWrapper);
+    }
+
+    entryPage() {
+        this._clearMainWrapper();
+
+        let entryContentWrapper = document.createElement("div");
+        entryContentWrapper.className = "entryContentWrapper";
+        entryContentWrapper.innerHTML = `
+            <span id="entryTitle">Submit Your Office Hours</span>
+            <input type="text" class="entryFormBox" placeholder="Professor (Dr. Wilbur Wildcat)">
+            <input type="text" class="entryFormBox" placeholder="Class (CSC 352)">
+            <div class="entryHoursWrapper">
+                <div id="entryHoursInputWrapper"></div>
+                <div class="plusButtonWrapper">
+                    <span class="plusIcon">+</span>
+                </div>
+            </div>
+            <div class="entrySubmissionWrapper">
+                <div class="button" id="entryBack">Back</div>
+                <div class="button" id="entrySubmit">Submit</div>
+            </div>`;
+        this.mainWrapper.appendChild(entryContentWrapper);
+        
+        let entryHoursInputWrapper = document.getElementById("entryHoursInputWrapper");
+        for (var i = 0; i < this.INIT_ENTRY_HOURS_BOXES; i++) {
+            let hoursBox = this._createEntryHoursBox();
+            entryHoursInputWrapper.appendChild(hoursBox[0]);
+            entryHoursInputWrapper.appendChild(hoursBox[1]);
+        }
     }
 
     _clearMainWrapper() {
         this.mainWrapper.innerHTML = "";
+    }
+
+    _createEntryHoursBox(placeholder) {
+        let entryHoursBox = document.createElement("input");
+        entryHoursBox.className = "entryHoursBox";
+        entryHoursBox.placeholder = placeholder;
+        entryHoursBox.type = "text";
+
+        let minusIcon = document.createElement("span");
+        minusIcon.className = "minusIcon";
+        minusIcon.textContent = "-";
+
+        return [entryHoursBox, minusIcon];
     }
 
     _createSearchResult(prof, className, loc, hours) {
@@ -103,6 +153,14 @@ class UAHoursController {
     mainScreen() {
         this.view.mainPage();
     }
+
+    searchScreen() {
+        this.view.searchPage();
+    }
+
+    entryScreen() {
+        this.view.entryPage();
+    }
 }
 
 class UAHoursModel {
@@ -113,5 +171,7 @@ class UAHoursModel {
 
 let main = function() {
     let controller = new UAHoursController();
-    controller.mainScreen();
+    controller.entryScreen();
 }
+
+main();

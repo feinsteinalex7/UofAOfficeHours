@@ -308,7 +308,7 @@ div {
     margin-right: auto;
 }
 
-.entryHoursInputWrapper {
+#entryHoursInputWrapper {
     width: 100%;
     position: relative;
 
