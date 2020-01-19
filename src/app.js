@@ -52,6 +52,7 @@ class WebServer {
                     continue;
                 }
                 searchObjArr.push({profS: {$regex: searchArr[i]}});
+                searchObjArr.push({classes: {$regex: searchArr[i]}});
             }
 
             for (var i = 0; i < searchArr2.length; i++) {
@@ -59,11 +60,10 @@ class WebServer {
                     continue;
                 }
                 searchObjArr.push({profS: {$regex: searchArr2[i]}});
+                searchObjArr.push({classes: {$regex: searchArr2[i]}});
             }
 
             searchObjArr.push({classes: req.query.term});
-
-            console.log("searchObjArr", searchObjArr);
 
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: searchObjArr
