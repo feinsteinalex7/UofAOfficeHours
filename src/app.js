@@ -43,11 +43,16 @@ class WebServer {
             console.log("search term: ", req.query.term);
             console.log(search_results);
 
+            let searchArr = req.query.term.toLowerCase().split("%20");
+            let searchObjArr = [];
+
+            for (var i = 0; i < searchArr.length; i++) {
+                searchObjArr.push({profS: searchArr[i]});
+            }
+            searchObjArr.push({classes: req.query.term});
+
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
-                $or: [
-                {classes: req.query.term},
-                {profS: {$regex: req.query.term.toLowerCase()}}
-                ]
+                $or: searchObjArr
             }).toArray(function(error, result) {
                 console.log("hello", result);
                 let relevant_obj = [];
@@ -101,7 +106,6 @@ class WebServer {
                         }
                         office_hours.push(decodeURI(s));
                     }
-                    console.log("asduf  uasief  ", office_hours);
                     this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, req.query.locName).then((result) => {
                         res.send();
                     });
