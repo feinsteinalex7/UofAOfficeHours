@@ -12,13 +12,13 @@ class BackEndMain {
         this.databaseConnection = new DatabaseConnection();
         console.log("db made");
         this.databaseConnection.init().then((result) => {
-            this.databaseConnection.insertNewProfessor("test").then((result) => {
+            this.databaseConnection.insertNewProfessor("test2").then((result) => {
                 this.databaseConnection.getProfessor("test").then((result2) => {
                     console.log(result2);
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
-            this.databaseConnection.insertNewClass("test", "idk").then((result) => {
-                this.databaseConnection.insertNewOfficeHour("test", "idk", "10AM", "90PM").then((result) => {
+            this.databaseConnection.insertNewClass("test2", "idk").then((result) => {
+                this.databaseConnection.insertNewOfficeHour("test2", "idk", "10AM", "90PM").then((result) => {
                     this.databaseConnection.getProfessor("test").then((result2) => {
                         console.log(result2);
                     }).catch((error) => {console.log(error)});
@@ -52,12 +52,17 @@ class WebServer {
                 ]
             }).toArray(function(error, result) {
                 console.log("hello", result);
+                let relevant_obj = [];
                 if (result[0].classes.includes(req.query.term)) {
-                    res.send({
-                        professor: result[0].professor,
-                        classes: [req.query.term],
-                        hours: [result[0].hours[result[0].classes.indexOf(req.query.term) * 2], result[0].hours[result[0].classes.indexOf(req.query.term) * 2 + 1]]
-                    })
+                    for(let i = 0; i < result.length; i++) {
+                        relevant_obj.push({
+                            _id: result[i]._id,
+                            professor: result[i].professor,
+                            classes: [req.query.term],
+                            hours: [result[i].hours[result[i].classes.indexOf(req.query.term) * 2], result[i].hours[result[i].classes.indexOf(req.query.term) * 2 + 1]]
+                        });
+                    }
+                    res.send(result);
                 }
                 else 
                 {
