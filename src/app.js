@@ -12,13 +12,13 @@ class BackEndMain {
         this.databaseConnection = new DatabaseConnection();
         console.log("db made");
         this.databaseConnection.init().then((result) => {
-            this.databaseConnection.insertNewProfessor("test2").then((result) => {
+            this.databaseConnection.insertNewProfessor("test").then((result) => {
                 this.databaseConnection.getProfessor("test").then((result2) => {
                     console.log(result2);
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
-            this.databaseConnection.insertNewClass("test2", "idk").then((result) => {
-                this.databaseConnection.insertNewOfficeHour("test2", "idk", "10AM", "90PM").then((result) => {
+            this.databaseConnection.insertNewClass("test", "idk").then((result) => {
+                this.databaseConnection.insertNewOfficeHour("test", "idk", "2AM-10PM").then((result) => {
                     this.databaseConnection.getProfessor("test").then((result2) => {
                         console.log(result2);
                     }).catch((error) => {console.log(error)});
@@ -59,7 +59,7 @@ class WebServer {
                             _id: result[i]._id,
                             professor: result[i].professor,
                             classes: [req.query.term],
-                            hours: [result[i].hours[result[i].classes.indexOf(req.query.term) * 2], result[i].hours[result[i].classes.indexOf(req.query.term) * 2 + 1]]
+                            hours: result[i].hours
                         });
                     }
                     res.send(relevant_obj);
@@ -75,8 +75,14 @@ class WebServer {
             req.query
 
             this.backEnd.databaseConnection.insertNewProfessor(req.query.profName).then((result) =>{
-                this.backEnd.databaseConnection.insertNewClass(req.query).then((result) => {
-                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query);
+                this.backEnd.databaseConnection.insertNewClass(req.query.profName, req.query.className).then((result) => {
+                    for (let i = 0; i < 100; i++) {
+                        let s = req.query["officeHour" + i];
+                        if (s === null) {
+                            break;
+                        }
+                        this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, s);
+                    }
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
         });
@@ -208,7 +214,7 @@ class DatabaseConnection {
         });
     }
 
-    insertNewOfficeHour(professor, class_name, startTime, endTime) {
+    insertNewOfficeHour(professor, class_name, time) {
         return new Promise((resolve, reject) => {
             // Get professor's document
             let professor_document = null;
@@ -217,8 +223,12 @@ class DatabaseConnection {
                 professor_document = result;
                 var hours = professor_document.hours;
 
-                hours[professor_document.classes.indexOf(class_name) * 2] = startTime;
-                hours[professor_document.classes.indexOf(class_name) * 2 + 1] = endTime;
+                if (hours[professor_document.classes.indexOf(class_name)] == null) {
+                    hours[professor_document.classes.indexOf(class_name)] = [];
+                }
+                if (!hours[professor_document.classes.indexOf(class_name)].includes(time)) {
+                    hours[professor_document.classes.indexOf(class_name)].push(time);
+                }
                 this.mongo.db.collection("office_hours").updateOne({
                     _id: professor_document._id
                 }, {
