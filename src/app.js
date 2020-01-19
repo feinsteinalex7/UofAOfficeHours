@@ -62,7 +62,7 @@ class WebServer {
                             hours: [result[i].hours[result[i].classes.indexOf(req.query.term) * 2], result[i].hours[result[i].classes.indexOf(req.query.term) * 2 + 1]]
                         });
                     }
-                    res.send(result);
+                    res.send(relevant_obj);
                 }
                 else 
                 {
@@ -74,7 +74,7 @@ class WebServer {
         this.app.get('/entry', (req, res) => {
             req.query
 
-            this.backEnd.databaseConnection.insertNewProfessor(req.query).then((result) =>{
+            this.backEnd.databaseConnection.insertNewProfessor(req.query.profName).then((result) =>{
                 this.backEnd.databaseConnection.insertNewClass(req.query).then((result) => {
                     this.backEnd.databaseConnection.insertNewOfficeHour(req.query);
                 }).catch((error) => {console.log(error)});
