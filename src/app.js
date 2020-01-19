@@ -54,7 +54,7 @@ class WebServer {
                 console.log("hello", result);
                 if (result[0].classes.includes(req.query.term)) {
                     res.send({
-                        professor: result.professor,
+                        professor: result[0].professor,
                         classes: [req.query.term],
                         hours: [result[0].hours[result[0].classes.indexOf(req.query.term) * 2], result[0].hours[result[0].classes.indexOf(req.query.term) * 2 + 1]]
                     })
