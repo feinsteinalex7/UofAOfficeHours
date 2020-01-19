@@ -50,6 +50,7 @@ class WebServer {
                 searchObjArr.push({profS: searchArr[i]});
             }
             searchObjArr.push({classes: req.query.term});
+            searchObjArr.push({profS: {$regex: req.query.term.toLowerCase()}});
 
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: searchObjArr
