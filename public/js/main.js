@@ -427,6 +427,10 @@ class UAHoursModel {
     removeSavedClass(id) {
         delete this.savedClasses[id];
         delete this.savedClassesTabs[id];
+
+        if (Object.keys(this.savedClasses).length == 0 && document.getElementById("mainViewCalendar") != undefined) {
+            document.getElementById("mainViewCalendar").style.display = "none";
+        }
     }
 }
 
@@ -442,6 +446,9 @@ let main = function() {
             view.createSearchTab(model.savedClasses[id][model.SAVED_CLASS_NAME_INDEX], id, true);
         }
         view.loadSearchTabs();
+        if (Object.keys(model.savedClasses).length) {
+            document.getElementById("mainViewCalendar").style.display = "inline-block";
+        }
     }
 }
 
