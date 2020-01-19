@@ -171,8 +171,8 @@ class UAHoursView {
             let profName = encodeURIComponent(document.getElementById("profName").value);
             let className = encodeURIComponent(document.getElementById("className").value);
             let locName = encodeURIComponent(document.getElementById("locName").value);
-            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className=" + encodeURIComponent(className) + "&locName" + encodeURIComponent(locName);
-            
+            let queryString = "/entry?profName=" + encodeURIComponent(profName) + "&className=" + encodeURIComponent(className) + "&locName=" + encodeURIComponent(locName);
+
             let entryHoursBoxes = document.getElementsByClassName("entryHoursBox");
 
             for (let i = 0; i < entryHoursBoxes.length; i++) {

@@ -10,7 +10,8 @@
 
     --search-search-width: 70%;
     --search-search-height: var(--main-search-height);
-    --search-height: var(--main-class-tab-close-height);result-general-info-height: 30px;
+    --search-height: var(--main-class-tab-close-height);
+    --result-general-info-height: 30px;
     --search-result-general-info-font-size: 30px;
     --search-result-general-info-max-width: 500px;
     --search-result-general-info-width: 40%;

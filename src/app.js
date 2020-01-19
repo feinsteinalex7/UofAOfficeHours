@@ -12,20 +12,15 @@ class BackEndMain {
         this.databaseConnection = new DatabaseConnection();
         console.log("db made");
         this.databaseConnection.init().then((result) => {
-            this.databaseConnection.insertNewProfessor("test2").then((result) => {
-                this.databaseConnection.getProfessor("test").then((result2) => {
-                    console.log(result2);
-                }).catch((error) => {console.log(error)});
-            }).catch((error) => {console.log(error)});
-            this.databaseConnection.insertNewClass("test2", "idk").then((result) => {
-                this.databaseConnection.insertNewOfficeHour("test2", "idk", "10AM", "90PM").then((result) => {
-                    this.databaseConnection.getProfessor("test").then((result2) => {
-                        console.log(result2);
+            this.databaseConnection.insertNewProfessor("test3").then((result) => {
+                this.databaseConnection.insertNewClass("test3", "woo").then((result) => {
+                    this.databaseConnection.insertNewOfficeHour("test3", "woo", "2AM-10PM", "test loc").then((result) => {
+                        this.databaseConnection.getProfessor("test3").then((result2) => {
+                            console.log(result2);
+                        }).catch((error) => {console.log(error)});
                     }).catch((error) => {console.log(error)});
-                }).catch((error) => {console.log(error)});
-            });
-
-            
+                });
+            }).catch((error) => {console.log(error)});
         }).catch((error) => {console.log(error)});
     }
 }
@@ -59,7 +54,8 @@ class WebServer {
                             _id: result[i]._id,
                             professor: result[i].professor,
                             classes: [req.query.term],
-                            hours: [result[i].hours[result[i].classes.indexOf(req.query.term) * 2], result[i].hours[result[i].classes.indexOf(req.query.term) * 2 + 1]]
+                            hours: result[i].hours,
+                            loc: result[i].loc
                         });
                     }
                     res.send(relevant_obj);
@@ -75,8 +71,20 @@ class WebServer {
             req.query
 
             this.backEnd.databaseConnection.insertNewProfessor(req.query.profName).then((result) =>{
-                this.backEnd.databaseConnection.insertNewClass(req.query).then((result) => {
-                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query);
+                this.backEnd.databaseConnection.insertNewClass(req.query.profName, req.query.className).then((result) => {
+                    var office_hours = [];
+                    for (let i = 0; i < 100; i++) {
+                        let s = req.query["officeHour" + i];
+                        console.log("asdfasefasefasef", req.query);
+                        if (typeof s === "undefined" || s == '') {
+                            break;
+                        }
+                        office_hours.push(s);
+                    }
+                    console.log("asduf  uasief  ", office_hours);
+                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, "test loc").then((result) => {
+                        res.send();
+                    });
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
         });
@@ -143,7 +151,8 @@ class DatabaseConnection {
                     this.mongo.db.collection('office_hours').insertOne({
                         "professor": professor,
                         "classes" : [],
-                        "hours": []
+                        "hours": [],
+                        "loc": ""
                     }).then((result) => {
                         resolve();
                         console.log("Success!");
@@ -208,23 +217,60 @@ class DatabaseConnection {
         });
     }
 
-    insertNewOfficeHour(professor, class_name, startTime, endTime) {
+    insertNewOfficeHour(professor, class_name, time, location) {
         return new Promise((resolve, reject) => {
             // Get professor's document
             let professor_document = null;
             this.getProfessor(professor).then((result) => {
-                console.log("res", result);
+                //console.log("res", result);
                 professor_document = result;
                 var hours = professor_document.hours;
+                if (typeof hours === "undefined") {
+                    hours = [];
+                }
 
-                hours[professor_document.classes.indexOf(class_name) * 2] = startTime;
-                hours[professor_document.classes.indexOf(class_name) * 2 + 1] = endTime;
+                if (typeof time != "string") {
+                    if (typeof hours[professor_document.classes.indexOf(class_name)] == "undefined") {
+                        hours[professor_document.classes.indexOf(class_name)] = [];
+                    }
+                    hours[professor_document.classes.indexOf(class_name)] = hours[professor_document.classes.indexOf(class_name)].concat(time);
+                    console.log("auisdbfliuasgeufiaw", hours, "siugfialsf ", time);
+                    this.mongo.db.collection("office_hours").updateOne({
+                        _id: professor_document._id
+                    }, {
+                        $set:
+                        {
+                            hours: hours,
+                            loc: location
+                        }
+                    }).then((result) => {
+                        console.log("Successfully inserted hours");
+                        console.log(professor_document);
+                        console.log("++++++++++");
+                        resolve(professor_document);
+                        return;
+                    }).catch((error) => {
+                        console.log(error);
+                        reject(error);
+                        return;
+                    });
+                    return;
+                }
+
+                if (typeof hours[professor_document.classes.indexOf(class_name)] === "undefined") {
+                    console.log("WWWWWWW ", hours);
+                    hours[professor_document.classes.indexOf(class_name)] = [];
+                }
+                if (!hours[professor_document.classes.indexOf(class_name)].includes(time)) {
+                    hours[professor_document.classes.indexOf(class_name)].push(time);
+                }
                 this.mongo.db.collection("office_hours").updateOne({
                     _id: professor_document._id
                 }, {
                     $set:
                     {
-                        hours: hours
+                        hours: hours,
+                        loc: location
                     }
                 }).then((result) => {
                     console.log("Successfully inserted hours");
