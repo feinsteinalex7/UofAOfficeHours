@@ -38,7 +38,7 @@ class UAHoursView {
         // Create search wrapper
         let mainSearchWrapper = document.createElement("div");
         mainSearchWrapper.className = "mainSearchWrapper";
-        mainSearchWrapper.innerHTML = '<input id="mainSearch" type="text"><img src="../images/search.png" id="mainSearchMag">';
+        mainSearchWrapper.innerHTML = '<input id="mainSearch" type="text" placeholder="Search for a professor or class to see office hours"><img src="../images/search.png" id="mainSearchMag">';
 
         // Create class tab wrapper
         let mainClassTabWrapper = document.createElement("div");
@@ -102,7 +102,7 @@ class UAHoursView {
         // Create search wrapper
         let searchWrapper = document.createElement("div");
         searchWrapper.className = "searchSearchWrapper";
-        searchWrapper.innerHTML = '<input id="searchSearch" type="text"><img src="../images/search.png" id="mainSearchMag">';
+        searchWrapper.innerHTML = '<input id="searchSearch" type="text" placeholder="Search for a professor or class to see office hours"><img src="../images/search.png" id="mainSearchMag">';
 
         // Create mainClassTabWrapper wrapper
         let mainClassTabWrapper = document.createElement("div");
@@ -152,7 +152,7 @@ class UAHoursView {
             noResultsFound.textContent = "No Results Found!";
             for (var i = 0; i < data.length; i++) {
                 for (var j = 0; j < data[i].classes.length; j++) {
-                    searchResultsWrapper.appendChild(this._createSearchResult(data[i].professor, data[i].classes[j], data[i].loc[j], data[i].hours[j]));
+                    searchResultsWrapper.appendChild(this._createSearchResult(data[i].professor, data[i].classes[j], data[i].loc, data[i].hours[j]));
                 }
             }
 
