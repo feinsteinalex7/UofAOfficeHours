@@ -14,7 +14,7 @@ class BackEndMain {
         this.databaseConnection.init().then((result) => {
             this.databaseConnection.insertNewProfessor("test3").then((result) => {
                 this.databaseConnection.insertNewClass("test3", "woo").then((result) => {
-                    this.databaseConnection.insertNewOfficeHour("test3", "woo", "2AM-10PM").then((result) => {
+                    this.databaseConnection.insertNewOfficeHour("test3", "woo", "2AM-10PM", "test loc").then((result) => {
                         this.databaseConnection.getProfessor("test3").then((result2) => {
                             console.log(result2);
                         }).catch((error) => {console.log(error)});
@@ -54,7 +54,8 @@ class WebServer {
                             _id: result[i]._id,
                             professor: result[i].professor,
                             classes: [req.query.term],
-                            hours: result[i].hours
+                            hours: result[i].hours,
+                            loc: result[i].loc
                         });
                     }
                     res.send(relevant_obj);
@@ -81,7 +82,7 @@ class WebServer {
                         office_hours.push(s);
                     }
                     console.log("asduf  uasief  ", office_hours);
-                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours).then((result) => {
+                    this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, "test loc").then((result) => {
                         res.send();
                     });
                 }).catch((error) => {console.log(error)});
@@ -150,7 +151,8 @@ class DatabaseConnection {
                     this.mongo.db.collection('office_hours').insertOne({
                         "professor": professor,
                         "classes" : [],
-                        "hours": []
+                        "hours": [],
+                        "loc": ""
                     }).then((result) => {
                         resolve();
                         console.log("Success!");
@@ -215,7 +217,7 @@ class DatabaseConnection {
         });
     }
 
-    insertNewOfficeHour(professor, class_name, time) {
+    insertNewOfficeHour(professor, class_name, time, location) {
         return new Promise((resolve, reject) => {
             // Get professor's document
             let professor_document = null;
@@ -238,7 +240,8 @@ class DatabaseConnection {
                     }, {
                         $set:
                         {
-                            hours: hours
+                            hours: hours,
+                            loc: location
                         }
                     }).then((result) => {
                         console.log("Successfully inserted hours");
@@ -266,7 +269,8 @@ class DatabaseConnection {
                 }, {
                     $set:
                     {
-                        hours: hours
+                        hours: hours,
+                        loc: location
                     }
                 }).then((result) => {
                     console.log("Successfully inserted hours");
