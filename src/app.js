@@ -48,7 +48,7 @@ class WebServer {
                 {classes: req.query.term},
                 {professor: {$regex: req.query.term}}
                 ]
-            }).collation({ locale: 'en', strength: 2 }).toArray(function(error, result) {
+            }).toArray(function(error, result) {
                 console.log("hello", result);
                 let relevant_obj = [];
                 if (typeof result[0] === "undefined") {
@@ -83,7 +83,10 @@ class WebServer {
                     for (let i = 0; i < 100; i++) {
                         let s = req.query["officeHour" + i];
                         console.log("asdfasefasefasef", req.query);
-                        if (typeof s === "undefined" || s == '') {
+                        if (s == '') {
+                            continue;
+                        }
+                        if (typeof s === "undefined") {
                             break;
                         }
                         office_hours.push(s);
