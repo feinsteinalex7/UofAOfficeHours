@@ -17,8 +17,8 @@ class BackEndMain {
                     console.log(result2);
                 }).catch((error) => {console.log(error)});
             }).catch((error) => {console.log(error)});
-            this.databaseConnection.insertNewClass("test", "lol").then((result) => {
-                this.databaseConnection.insertNewOfficeHour("test", "lol", "1AM", "9PM").then((result) => {
+            this.databaseConnection.insertNewClass("test", "idk").then((result) => {
+                this.databaseConnection.insertNewOfficeHour("test", "idk", "10AM", "90PM").then((result) => {
                     this.databaseConnection.getProfessor("test").then((result2) => {
                         console.log(result2);
                     }).catch((error) => {console.log(error)});
@@ -52,7 +52,17 @@ class WebServer {
                 ]
             }).toArray(function(error, result) {
                 console.log("hello", result);
-                res.send(result);
+                if (result[0].classes.includes(req.query.term)) {
+                    res.send({
+                        professor: result.professor,
+                        classes: [req.query.term],
+                        hours: [result[0].hours[result[0].classes.indexOf(req.query.term) * 2], result[0].hours[result[0].classes.indexOf(req.query.term) * 2 + 1]]
+                    })
+                }
+                else 
+                {
+                    res.send(result);
+                }
             });
         });
 
