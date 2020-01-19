@@ -46,7 +46,7 @@ class WebServer {
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: [
                 {classes: req.query.term},
-                {professor: {$regex: req.query.term}}
+                {profS: {$regex: req.query.term.toLowerCase()}}
                 ]
             }).toArray(function(error, result) {
                 console.log("hello", result);
@@ -59,16 +59,26 @@ class WebServer {
                     for(let i = 0; i < result.length; i++) {
                         relevant_obj.push({
                             _id: result[i]._id,
-                            professor: result[i].professor,
-                            classes: [req.query.term],
+                            professor: decodeURI(result[i].professor),
+                            classes: decodeURI([req.query.term]),
                             hours: result[i].hours,
-                            loc: result[i].loc
+                            loc: decodeURI(result[i].loc)
                         });
                     }
+                    console.log("rev", relevant_obj);
                     res.send(relevant_obj);
                 }
                 else 
                 {
+                    let r = result
+                    for (let i = 0; i < result.length; i++) {
+                        r[i].professor = decodeURI(r[i].professor);
+                        r[i].loc = decodeURI(r[i].loc);
+                        
+                        for (let j = 0; j < r[i].classes.length; j++) {
+                            r[i].classes[j] = decodeURI(r[i].classes[j]);
+                        }
+                    }
                     res.send(result);
                 }
             });
@@ -89,7 +99,7 @@ class WebServer {
                         if (typeof s === "undefined") {
                             break;
                         }
-                        office_hours.push(s);
+                        office_hours.push(decodeURI(s));
                     }
                     console.log("asduf  uasief  ", office_hours);
                     this.backEnd.databaseConnection.insertNewOfficeHour(req.query.profName, req.query.className, office_hours, "test loc").then((result) => {
@@ -136,7 +146,7 @@ class DatabaseConnection {
         let professor_document = null;
         return new Promise((resolve, reject) => {
             this.mongo.db.collection('office_hours').findOne({
-                "professor": professor
+                "profS": professor.toLowerCase()
             }).then((res) => {
                 // Add the class
                 if (res == null) {
@@ -160,6 +170,7 @@ class DatabaseConnection {
                 if (result === "error" || result == null) {
                     this.mongo.db.collection('office_hours').insertOne({
                         "professor": professor,
+                        "profS": professor.toLowerCase(),
                         "classes" : [],
                         "hours": [],
                         "loc": ""
