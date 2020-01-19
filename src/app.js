@@ -12,7 +12,7 @@ class BackEndMain {
         this.databaseConnection = new DatabaseConnection();
         console.log("db made");
         this.databaseConnection.init().then((result) => {
-            this.databaseConnection.insertNewProfessor("test3").then((result) => {
+            /*this.databaseConnection.insertNewProfessor("test3").then((result) => {
                 this.databaseConnection.insertNewClass("test3", "woo").then((result) => {
                     this.databaseConnection.insertNewOfficeHour("test3", "woo", "2AM-10PM", "test loc").then((result) => {
                         this.databaseConnection.getProfessor("test3").then((result2) => {
@@ -20,7 +20,7 @@ class BackEndMain {
                         }).catch((error) => {console.log(error)});
                     }).catch((error) => {console.log(error)});
                 });
-            }).catch((error) => {console.log(error)});
+            }).catch((error) => {console.log(error)});*/
         }).catch((error) => {console.log(error)});
     }
 }
@@ -46,9 +46,9 @@ class WebServer {
             this.backEnd.databaseConnection.mongo.db.collection('office_hours').find({
                 $or: [
                 {classes: req.query.term},
-                {professor: req.query.term}
+                {professor: {$regex: req.query.term}}
                 ]
-            }).toArray(function(error, result) {
+            }).collation({ locale: 'en', strength: 2 }).toArray(function(error, result) {
                 console.log("hello", result);
                 let relevant_obj = [];
                 if (typeof result[0] === "undefined") {
